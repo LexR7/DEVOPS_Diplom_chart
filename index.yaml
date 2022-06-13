@@ -3,7 +3,17 @@ entries:
   devops-diplom:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-06-12T22:59:47.53657+05:00"
+    created: "2022-06-13T12:56:05.649185+05:00"
+    description: DevOps Diplom chart
+    digest: 9e04cd90ff484b2dd4898559c96e5ab8750e602347b9243ec450b1086cb0b71e
+    name: devops-diplom
+    type: application
+    urls:
+    - devops-diplom-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-06-13T12:56:05.648976+05:00"
     description: DevOps Diplom chart
     digest: fcf72302cad56a92e37cc84fd13651cc5ed9e21287d3c3229ee6867e7ffe4810
     name: devops-diplom
@@ -13,7 +23,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-06-12T22:59:47.536361+05:00"
+    created: "2022-06-13T12:56:05.648644+05:00"
     description: DevOps Diplom chart
     digest: fd487daf8f5e6f57050759994bfdcaf12df60182538793b475f28a13b3524246
     name: devops-diplom
@@ -23,7 +33,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-06-12T22:59:47.536004+05:00"
+    created: "2022-06-13T12:56:05.648305+05:00"
     description: DevOps Diplom chart
     digest: bd919c52d1a8000d43f09b3fcc46c652dfd85e2be05d035faecbfa7a216a7da7
     name: devops-diplom
@@ -31,4 +41,4 @@ entries:
     urls:
     - devops-diplom-0.1.0.tgz
     version: 0.1.0
-generated: "2022-06-12T22:59:47.535517+05:00"
+generated: "2022-06-13T12:56:05.647815+05:00"
