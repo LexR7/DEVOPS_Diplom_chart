@@ -1,0 +1,9 @@
+app:
+  replicas: 1
+
+image:
+  repository: alexeyr7
+  name: sf-test-app
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+#  tag: ""

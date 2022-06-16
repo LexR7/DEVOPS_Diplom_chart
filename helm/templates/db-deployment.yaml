@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: db-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+  name: db-{{ .Release.Name }}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-{{ .Release.Name }}
+      component: {{ .Release.Namespace }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: db-{{ .Release.Name }}
+        component: {{ .Release.Namespace }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: db-{{ .Release.Name }}
+          image: postgres:13-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                 name: {{ .Release.Name }}-secret
+                 key: password
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-{{ .Release.Name }}-volume
+      restartPolicy: Always
+      volumes:
+        - name: db-{{ .Release.Name }}-volume
+          persistentVolumeClaim:
+            claimName: db-{{ .Release.Name }}-volume
+status: {}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-{{ .Release.Name }}-volume
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  hostPath:
+    path: "/mnt/disks"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: db-{{ .Release.Name }}-volume
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+  name: db-{{ .Release.Name }}-volume
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+  name: db-{{ .Release.Name }}-service
+spec:
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: db-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}

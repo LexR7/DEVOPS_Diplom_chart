@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+  name: app-{{ .Release.Name }}-deployment
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: app-{{ .Release.Name }}
+      component: {{ .Release.Namespace }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-{{ .Release.Name }}
+        component: {{ .Release.Namespace }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: app-{{ .Release.Name }}
+          image: {{ .Values.image.repository }}/{{ .Values.image.name }}
+          ports:
+            - containerPort: 3003
+          args:
+            - sh
+            - -c
+            - python manage.py makemigrations myapp && python manage.py sqlmigrate myapp 0001 && python manage.py migrate && python manage.py runserver 0.0.0.0:3003
+          env:
+            - name: DB_HOST
+              value: db-{{ .Release.Name }}-service
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: DB_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                 name: {{ .Release.Name }}-secret
+                 key: password
+          resources: {}
+      restartPolicy: Always
+status: {}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-{{ .Release.Name }}-service
+  labels:
+    app: app-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+spec:
+  ports:
+    - name: "app-port"
+      port: 80
+      targetPort: 3003
+  selector:
+    app: app-{{ .Release.Name }}
+    component: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-{{ .Release.Name }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-{{ .Release.Name }}-service
+            port:
+              number: 80
